@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Momentum — ₹50K Challenge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    /* ─── CSS Variables ─── */
+    :root {
+      --bg:         #f5f0e8;
+      --bg-card:    #faf7f2;
+      --bg-input:   #f0ebe0;
+      --border:     #d9d0bc;
+      --border-light: #e8e0cc;
+      --text:       #2c2416;
+      --text-muted: #8a7d65;
+      --accent:     #7a5c38;
+      --accent-warm:#c4976a;
+      --accent-gold: #b8892d;
+      --progress-low:   #c49a6c;
+      --progress-mid:   #a07040;
+      --progress-high:  #7a5228;
+      --progress-done:  #4a7c59;
+      --shadow:     rgba(60,40,10,0.08);
+      --shadow-md:  rgba(60,40,10,0.14);
+    }
+
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Subtle grain texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    /* ─── Layout ─── */
+    .wrapper {
+      max-width: 720px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── Header ─── */
+    header {
+      text-align: center;
+      padding: 2.5rem 0 2rem;
+      animation: fadeDown 0.7s ease both;
+    }
+    header .eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+    }
+    header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    header h1 em {
+      font-style: italic;
+      color: var(--accent-warm);
+    }
+    header .subtext {
+      margin-top: 0.5rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+    }
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--border);
+      margin: 1.4rem auto 0;
+    }
+
+    /* ─── Cards ─── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 12px var(--shadow);
+      animation: fadeUp 0.6s ease both;
+    }
+    .card-title {
+      font-size: 0.6rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ─── Stats Dashboard ─── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.8rem;
+    }
+    .stat {
+      text-align: center;
+      padding: 1rem 0.5rem;
+      border: 1px solid var(--border-light);
+      border-radius: 3px;
+      background: var(--bg-input);
+    }
+    .stat-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+    .stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.3rem, 3.5vw, 1.9rem);
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+    }
+    .stat-value.accent { color: var(--accent-gold); }
+
+    /* ─── Progress Bar ─── */
+    .progress-wrap {
+      margin-bottom: 0.5rem;
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+    }
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: var(--bg-input);
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                  background 0.9s ease;
+      background: var(--progress-low);
+      width: 0%;
+    }
+
+    /* streak badge */
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 0.3rem 0.85rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      margin-top: 1rem;
+    }
+    .streak-badge .flame { font-size: 0.85rem; }
+    .streak-badge strong { color: var(--accent-warm); font-weight: 400; }
+
+    /* ─── Entry Form ─── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .form-group.full { grid-column: 1 / -1; }
+    label {
+      font-size: 0.58rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    input, textarea {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.82rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.65rem 0.8rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--accent-warm);
+      box-shadow: 0 0 0 3px rgba(196,151,106,0.12);
+    }
+    textarea { resize: vertical; min-height: 70px; }
+
+    .btn-submit {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 3px;
+      padding: 0.8rem 2rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 1.2rem;
+    }
+    .btn-submit:hover { background: var(--accent); }
+    .btn-submit:active { transform: scale(0.97); }
+
+    /* ─── Log Table ─── */
+    .log-empty {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      padding: 2rem 0;
+      letter-spacing: 0.1em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+    thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-size: 0.55rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 0.5rem 0.8rem;
+      text-align: left;
+      font-weight: 400;
+    }
+    td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    .td-amount {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+      white-space: nowrap;
+    }
+    .td-date { color: var(--text-muted); white-space: nowrap; }
+    .td-notes { color: var(--text-muted); font-size: 0.7rem; max-width: 240px; }
+    .btn-delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--border);
+      font-size: 0.9rem;
+      padding: 0 0.2rem;
+      transition: color 0.2s;
+    }
+    .btn-delete:hover { color: #c0392b; }
+
+    /* Row entry animation */
+    .log-row-new { animation: rowSlide 0.4s ease both; }
+
+    /* ─── Celebration Overlay ─── */
+    #celebration {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 1000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    #celebration.active { display: flex; animation: fadeIn 0.6s ease both; }
+    #celebration h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 7vw, 4rem);
+      font-weight: 300;
+      font-style: italic;
+      color: var(--text);
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+    #celebration p {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+    }
+    .btn-dismiss {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.7rem 1.8rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .btn-dismiss:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Confetti canvas */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* ─── Animations ─── */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes rowSlide {
+      from { opacity: 0; transform: translateX(-10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Staggered card animations */
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.12s; }
+    .card:nth-child(3) { animation-delay: 0.19s; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 500px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .stats-grid .stat:last-child { grid-column: 1 / -1; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Notification permission banner */
+    #notif-banner {
+      display: none;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.75rem 1rem;
+      font-size: 0.66rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-notif {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 2px;
+      padding: 0.4rem 0.9rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-notif:hover { background: var(--accent); }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ─── Celebration Overlay ─── -->
+<div id="celebration">
+  <div class="divider" style="margin-bottom:2rem; width:60px;"></div>
+  <h2>Mission Complete.<br>Momentum Achieved.</h2>
+  <p>₹50,000 — Sennheiser Momentum 4 unlocked</p>
+  <button class="btn-dismiss" onclick="dismissCelebration()">Continue</button>
+</div>
+
+<!-- ─── Main App ─── -->
+<div class="wrapper">
+
+  <!-- Header -->
+  <header>
+    <p class="eyebrow">Personal Challenge</p>
+    <h1>The <em>Momentum</em> Fund</h1>
+    <p class="subtext">₹50,000 · Sennheiser Momentum 4</p>
+    <div class="divider"></div>
+  </header>
+
+  <!-- Notification banner -->
+  <div id="notif-banner">
+    <span>Enable daily reminders to log your earnings?</span>
+    <button class="btn-notif" onclick="requestNotifPermission()">Enable Reminders</button>
+  </div>
+
+  <!-- Dashboard Card -->
+  <div class="card" id="dashboard-card">
+    <p class="card-title">Dashboard</p>
+
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="stat-label">Earned</div>
+        <div class="stat-value accent" id="stat-earned">₹0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Remaining</div>
+        <div class="stat-value" id="stat-remaining">₹50,000</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Progress</div>
+        <div class="stat-value" id="stat-percent">0%</div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span>₹0</span>
+        <span>₹50,000</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- Streak -->
+    <div style="text-align:center;">
+      <span class="streak-badge">
+        <span class="flame">🔥</span>
+        <span id="streak-text">0 day streak</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Entry Form Card -->
+  <div class="card">
+    <p class="card-title">Log Earnings</p>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="entry-date">Date</label>
+        <input type="date" id="entry-date" />
+      </div>
+      <div class="form-group">
+        <label for="entry-amount">Amount (₹)</label>
+        <input type="number" id="entry-amount" placeholder="e.g. 500" min="1" />
+      </div>
+      <div class="form-group full">
+        <label for="entry-notes">Notes (optional)</label>
+        <textarea id="entry-notes" placeholder="Freelance gig, sale, etc."></textarea>
+      </div>
+    </div>
+    <button class="btn-submit" onclick="addEntry()">Log Entry →</button>
+  </div>
+
+  <!-- Log History Card -->
+  <div class="card">
+    <p class="card-title">Entry Log</p>
+    <div id="log-container">
+      <p class="log-empty">No entries yet. Start logging your earnings above.</p>
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+  /* ─────────────────────────────────────────
+     CONSTANTS & STATE
+  ───────────────────────────────────────── */
+  const GOAL = 50000;
+  const STORAGE_KEY = 'momentum_entries_v1';
+
+  // Load entries from localStorage
+  let entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let celebrationShown = localStorage.getItem('momentum_celebrated') === 'true';
+
+  /* ─────────────────────────────────────────
+     INIT
+  ───────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
+    // Set today's date as default
+    document.getElementById('entry-date').value = todayISO();
+    renderAll();
+
+    // Show notification banner if not granted/denied
+    if ('Notification' in window && Notification.permission === 'default') {
+      document.getElementById('notif-banner').style.display = 'flex';
+    }
+  });
+
+  /* ─────────────────────────────────────────
+     DATE HELPERS
+  ───────────────────────────────────────── */
+  function todayISO() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  function formatDate(iso) {
+    // e.g. "21 Apr 2026"
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  /* ─────────────────────────────────────────
+     SAVE TO LOCALSTORAGE
+  ───────────────────────────────────────── */
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }
+
+  /* ─────────────────────────────────────────
+     ADD ENTRY
+  ───────────────────────────────────────── */
+  function addEntry() {
+    const dateEl   = document.getElementById('entry-date');
+    const amountEl = document.getElementById('entry-amount');
+    const notesEl  = document.getElementById('entry-notes');
+
+    const date   = dateEl.value;
+    const amount = parseFloat(amountEl.value);
+    const notes  = notesEl.value.trim();
+
+    // Basic validation
+    if (!date) { shake(dateEl); return; }
+    if (!amount || amount <= 0) { shake(amountEl); return; }
+
+    const entry = {
+      id:     Date.now(),
+      date,
+      amount,
+      notes
+    };
+
+    entries.unshift(entry); // newest first
+    save();
+
+    // Reset fields
+    amountEl.value = '';
+    notesEl.value  = '';
+    dateEl.value   = todayISO();
+
+    renderAll(true);
+  }
+
+  /* ─────────────────────────────────────────
+     DELETE ENTRY
+  ───────────────────────────────────────── */
+  function deleteEntry(id) {
+    entries = entries.filter(e => e.id !== id);
+    save();
+    renderAll();
+  }
+
+  /* ─────────────────────────────────────────
+     RENDER ALL
+  ───────────────────────────────────────── */
+  function renderAll(newEntry = false) {
+    const total     = entries.reduce((sum, e) => sum + e.amount, 0);
+    const remaining = Math.max(0, GOAL - total);
+    const pct       = Math.min(100, (total / GOAL) * 100);
+
+    // Stats
+    document.getElementById('stat-earned').textContent    = formatRupee(total);
+    document.getElementById('stat-remaining').textContent = formatRupee(remaining);
+    document.getElementById('stat-percent').textContent   = pct.toFixed(1) + '%';
+
+    // Progress bar color based on progress
+    const fill = document.getElementById('progress-fill');
+    fill.style.width = pct + '%';
+    if (pct >= 100)     fill.style.background = 'var(--progress-done)';
+    else if (pct >= 70) fill.style.background = 'var(--progress-high)';
+    else if (pct >= 40) fill.style.background = 'var(--progress-mid)';
+    else                fill.style.background = 'var(--progress-low)';
+
+    // Streak
+    document.getElementById('streak-text').textContent = calcStreak() + ' day streak';
+
+    // Log
+    renderLog(newEntry);
+
+    // Celebration (only trigger once)
+    if (total >= GOAL && !celebrationShown) {
+      celebrationShown = true;
+      localStorage.setItem('momentum_celebrated', 'true');
+      setTimeout(() => triggerCelebration(), 600);
+    }
+  }
+
+  /* ─────────────────────────────────────────
+     RENDER LOG TABLE
+  ───────────────────────────────────────── */
+  function renderLog(animateFirst = false) {
+    const container = document.getElementById('log-container');
+    if (entries.length === 0) {
+      container.innerHTML = '<p class="log-empty">No entries yet. Start logging your earnings above.</p>';
+      return;
+    }
+
+    let html = `
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    entries.forEach((e, i) => {
+      const rowClass = (i === 0 && animateFirst) ? 'log-row-new' : '';
+      html += `
+        <tr class="${rowClass}">
+          <td class="td-date">${formatDate(e.date)}</td>
+          <td class="td-amount">₹${e.amount.toLocaleString('en-IN')}</td>
+          <td class="td-notes">${e.notes || '<span style="opacity:0.35">—</span>'}</td>
+          <td><button class="btn-delete" title="Delete" onclick="deleteEntry(${e.id})">✕</button></td>
+        </tr>
+      `;
+    });
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
+
+  /* ─────────────────────────────────────────
+     STREAK CALCULATOR
+     Counts consecutive days (ending today or yesterday) with at least 1 entry
+  ───────────────────────────────────────── */
+  function calcStreak() {
+    if (entries.length === 0) return 0;
+
+    // Unique dates from entries
+    const dates = [...new Set(entries.map(e => e.date))].sort().reverse();
+    if (dates.length === 0) return 0;
+
+    const today     = todayISO();
+    const yesterday = new Date(Date.now() - 864e5).toISOString().split('T')[0];
+
+    // Streak only counts if latest entry is today or yesterday
+    if (dates[0] !== today && dates[0] !== yesterday) return 0;
+
+    let streak = 1;
+    for (let i = 1; i < dates.length; i++) {
+      const prev = new Date(dates[i - 1] + 'T00:00:00');
+      const curr = new Date(dates[i]     + 'T00:00:00');
+      const diff = (prev - curr) / 864e5; // diff in days
+      if (Math.round(diff) === 1) streak++;
+      else break;
+    }
+    return streak;
+  }
+
+  /* ─────────────────────────────────────────
+     FORMAT RUPEE
+  ───────────────────────────────────────── */
+  function formatRupee(n) {
+    return '₹' + Math.round(n).toLocaleString('en-IN');
+  }
+
+  /* ─────────────────────────────────────────
+     SHAKE ANIMATION (validation)
+  ───────────────────────────────────────── */
+  function shake(el) {
+    el.style.transition = 'transform 0.05s';
+    let i = 0;
+    const steps = [6, -6, 5, -5, 3, -3, 0];
+    const step = () => {
+      el.style.transform = `translateX(${steps[i]}px)`;
+      if (++i < steps.length) setTimeout(step, 50);
+      else el.style.transform = '';
+    };
+    step();
+    el.focus();
+  }
+
+  /* ─────────────────────────────────────────
+     CELEBRATION
+  ───────────────────────────────────────── */
+  function triggerCelebration() {
+    document.getElementById('celebration').classList.add('active');
+    startConfetti();
+    playSound();
+  }
+
+  function dismissCelebration() {
+    document.getElementById('celebration').classList.remove('active');
+    stopConfetti();
+  }
+
+  /* ─────────────────────────────────────────
+     CONFETTI ENGINE
+     Minimal canvas-based confetti in warm beige palette
+  ───────────────────────────────────────── */
+  const canvas  = document.getElementById('confetti-canvas');
+  const ctx     = canvas.getContext('2d');
+  let confettiParticles = [];
+  let confettiRAF = null;
+  let confettiActive = false;
+
+  const CONFETTI_COLORS = [
+    '#b8892d', '#c4976a', '#8a6040', '#d4b483',
+    '#7a5228', '#e8d4a8', '#4a7c59', '#f0ebe0'
+  ];
+
+  function startConfetti() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    confettiActive = true;
+    confettiParticles = Array.from({ length: 130 }, () => makeParticle());
+    animateConfetti();
+
+    // Stop spawning new particles after 4s, let existing ones fall
+    setTimeout(() => { confettiActive = false; }, 4000);
+  }
+
+  function makeParticle() {
+    return {
+      x:     Math.random() * canvas.width,
+      y:     Math.random() * -canvas.height * 0.5,
+      w:     4 + Math.random() * 8,
+      h:     6 + Math.random() * 10,
+      color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+      rot:   Math.random() * Math.PI * 2,
+      rotV:  (Math.random() - 0.5) * 0.12,
+      vx:    (Math.random() - 0.5) * 2.5,
+      vy:    1.5 + Math.random() * 3,
+      alpha: 1
+    };
+  }
+
+  function animateConfetti() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    confettiParticles.forEach(p => {
+      p.x   += p.vx;
+      p.y   += p.vy;
+      p.rot += p.rotV;
+      if (p.y > canvas.height) p.alpha -= 0.03;
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.alpha);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+
+    // Remove faded particles
+    confettiParticles = confettiParticles.filter(p => p.alpha > 0);
+
+    if (confettiActive) {
+      // Replenish a few particles
+      if (confettiParticles.length < 130) {
+        confettiParticles.push(...Array.from({ length: 3 }, makeParticle));
+      }
+    }
+
+    if (confettiParticles.length > 0) {
+      confettiRAF = requestAnimationFrame(animateConfetti);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  function stopConfetti() {
+    confettiActive = false;
+    confettiParticles = [];
+    if (confettiRAF) cancelAnimationFrame(confettiRAF);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  window.addEventListener('resize', () => {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  /* ─────────────────────────────────────────
+     SOUND EFFECT (Web Audio API — simple chime)
+  ───────────────────────────────────────── */
+  function playSound() {
+    try {
+      const ac  = new (window.AudioContext || window.webkitAudioContext)();
+      // Play a short ascending arpeggio
+      [[261.6, 0], [329.6, 0.15], [392, 0.3], [523.2, 0.5]].forEach(([freq, delay]) => {
+        const osc  = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.frequency.value = freq;
+        osc.type = 'sine';
+        const t = ac.currentTime + delay;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.18, t + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+        osc.start(t);
+        osc.stop(t + 0.7);
+      });
+    } catch (e) { /* audio not supported — silent */ }
+  }
+
+  /* ─────────────────────────────────────────
+     NOTIFICATION PERMISSION
+  ───────────────────────────────────────── */
+  function requestNotifPermission() {
+    if (!('Notification' in window)) return;
+    Notification.requestPermission().then(perm => {
+      document.getElementById('notif-banner').style.display = 'none';
+      if (perm === 'granted') {
+        scheduleReminder();
+        new Notification('Momentum Fund 🎯', {
+          body: "You're all set! We'll remind you daily to log your earnings.",
+          icon: ''
+        });
+      }
+    });
+  }
+
+  /**
+   * Schedule a once-per-day reminder using setTimeout.
+   * (Only fires in current session; for persistent reminders a service worker would be needed.)
+   */
+  function scheduleReminder() {
+    const now    = new Date();
+    const target = new Date();
+    target.setHours(20, 0, 0, 0); // 8 PM reminder
+    if (target <= now) target.setDate(target.getDate() + 1);
+    const delay = target - now;
+    setTimeout(() => {
+      if (Notification.permission === 'granted') {
+        new Notification('Log Today\'s Earnings 💰', {
+          body: "Don't forget to add today's income to the Momentum Fund!",
+        });
+      }
+    }, delay);
+  }
+
+  // Auto-schedule if already granted
+  if ('Notification' in window && Notification.permission === 'granted') {
+    scheduleReminder();
+  }
+</script>
+</body>
+</html>
